@@ -1,0 +1,150 @@
+{
+  "experiment_name": "experiment_3",
+  "config": {
+    "embed_dim": 512,
+    "hidden_dim": 256,
+    "encoder_layers": 3,
+    "decoder_layers": 3,
+    "dropout": 0.5,
+    "learning_rate": 0.0001,
+    "batch_size": 128,
+    "num_epochs": 15,
+    "vocab_size": 2000,
+    "max_length": 50
+  },
+  "metrics": {
+    "bleu_score": 0.0,
+    "cer_score": 1.0,
+    "perplexity": 372.53035383395996
+  },
+  "training_metrics": {
+    "train_losses": [
+      5.715407689412435,
+      5.640948295593262,
+      5.543092727661133,
+      5.4143907229105634,
+      5.227095762888591,
+      4.9724775950113935,
+      4.582037607828776,
+      4.136650403340657,
+      3.5012125174204507,
+      2.8486470381418862,
+      2.2050575415293374,
+      1.7038628260294597,
+      1.3176847298940022,
+      1.0862387418746948,
+      0.9675075014432272
+    ],
+    "val_losses": [
+      5.719049692153931,
+      5.696599245071411,
+      5.374047756195068,
+      5.155800104141235,
+      4.868115425109863,
+      4.463293552398682,
+      3.938283324241638,
+      3.307796359062195,
+      2.643685460090637,
+      2.0482864379882812,
+      1.592758297920227,
+      1.2841423153877258,
+      1.0894166827201843,
+      0.9696633517742157,
+      0.8947266042232513
+    ],
+    "val_perplexities": [
+      304.71567511248634,
+      297.9761257245434,
+      215.95511000478172,
+      173.7007108012569,
+      130.41095948091896,
+      87.08125214218165,
+      51.5901062460203,
+      27.52029648087915,
+      14.203092159012739,
+      7.853433852026158,
+      4.993150061909232,
+      3.6751395732219487,
+      3.029858589386465,
+      2.6915369123366006,
+      2.4995509578918758
+    ],
+    "training_time": 16.605643272399902
+  },
+  "sample_translations": [
+    {
+      "source": "ہزاروں خواہشیں ایسی کہ ہر پے دم نکلے",
+      "reference": "hazaron khwahishen aisi ke har pe dam nikle",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "آپ کیسے ہیں؟",
+      "reference": "aap kaise hain?",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "دوستی ایک نعمت ہے",
+      "reference": "dosti ek nemat hai",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "شکریہ آپ کا",
+      "reference": "shukriya aap ka",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "محنت کامیابی کلید ہے",
+      "reference": "mehnat kamyabi ki kaleed hai",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "شکریہ آپ کا",
+      "reference": "shukriya aap ka",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "السلام علیکم",
+      "reference": "assalam alaikum",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "میرا نام احمد ہے",
+      "reference": "naam ahmad hai",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "یہ ایک خوبصورت دن ہے",
+      "reference": "yeh ek khubsurat din hai",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "شکریہ آپ کا",
+      "reference": "shukriya aap ka",
+      "prediction": "",
+      "bleu": 0.0,
+      "cer": 1.0
+    }
+  ],
+  "model_info": {
+    "total_params": 7237946,
+    "trainable_params": 7237946
+  }
+}
