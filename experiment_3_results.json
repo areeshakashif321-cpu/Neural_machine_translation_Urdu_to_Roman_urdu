@@ -1,0 +1,150 @@
+{
+  "experiment_name": "experiment_3",
+  "config": {
+    "embed_dim": 512,
+    "hidden_dim": 256,
+    "encoder_layers": 3,
+    "decoder_layers": 3,
+    "dropout": 0.5,
+    "learning_rate": 0.0001,
+    "batch_size": 128,
+    "num_epochs": 15,
+    "vocab_size": 2000,
+    "max_length": 50
+  },
+  "metrics": {
+    "bleu_score": 0.0,
+    "cer_score": 0.874918875022408,
+    "perplexity": 72.72252392231007
+  },
+  "training_metrics": {
+    "train_losses": [
+      5.766105651855469,
+      4.753790389407765,
+      4.712274648926475,
+      4.685929648803942,
+      4.665045738220215,
+      4.6438317190517076,
+      4.620602903944073,
+      4.597000833713647,
+      4.564315990968184,
+      4.525900732387196,
+      4.486393079613194,
+      4.442774158535582,
+      4.397223078843319,
+      4.353268327135028,
+      4.305585203748761
+    ],
+    "val_losses": [
+      4.828170636120965,
+      4.74780694176169,
+      4.694810109979966,
+      4.703645565930535,
+      4.672277226167567,
+      4.64413449343513,
+      4.62712641323314,
+      4.580536617952235,
+      4.594304898205926,
+      4.509476268992705,
+      4.491319768569049,
+      4.417482684640324,
+      4.387826134176815,
+      4.36780242358937,
+      4.295723269967472
+    ],
+    "val_perplexities": [
+      124.55329727146574,
+      114.96287416234901,
+      108.9998538968232,
+      109.9760542132841,
+      106.57831745692513,
+      103.60124312808344,
+      101.86414430206354,
+      97.19183588099463,
+      98.61503189330932,
+      90.59272186228235,
+      88.9425528601385,
+      82.60625834995673,
+      80.22470106155596,
+      78.61966535646124,
+      73.15648842018676
+    ],
+    "training_time": 2041.9069743156433
+  },
+  "sample_translations": [
+    {
+      "source": "ہوا مہ کثرت سرسے آخر",
+      "reference": "hoa ksrse",
+      "prediction": "'",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "پریشاں رہتے دن اکبرؔ",
+      "reference": "prishan rhte dn rat akbrؔ",
+      "prediction": "'",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "ہوا کی راہ میں یہ شمع جل تو سکتی ہے",
+      "reference": "hoa ki rah min ih to skti he",
+      "prediction": "'min he he",
+      "bleu": 0.0,
+      "cer": 0.7142857142857143
+    },
+    {
+      "source": "کوئی اٹھتا ہے اور طوفان کا رخ موڑ دیتا",
+      "reference": "koئi athta he aor ka rkh dita",
+      "prediction": "'he he he",
+      "bleu": 0.0,
+      "cer": 0.7931034482758621
+    },
+    {
+      "source": "ط عشق میں ہے کیا امید و بیم مجھے",
+      "reference": "t shq min he kia o bim mjhe",
+      "prediction": "'he he he",
+      "bleu": 0.0,
+      "cer": 0.7407407407407407
+    },
+    {
+      "source": "شعلہ نجلا دل تجھ حسن",
+      "reference": "dl tjh hsn za",
+      "prediction": "'",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "ترے نہاں کا تو آہ کیا",
+      "reference": "tre nhan ka to kia",
+      "prediction": "'kia kia",
+      "bleu": 0.0,
+      "cer": 0.7222222222222222
+    },
+    {
+      "source": "ہمارے ذہن کی میں آگ ایسی",
+      "reference": "hmare zhn ki min ag aisi",
+      "prediction": "'",
+      "bleu": 0.0,
+      "cer": 1.0
+    },
+    {
+      "source": "راحت ہے انتظار اے دل",
+      "reference": "bhanۂ raht he antzar ae dl",
+      "prediction": "'he he",
+      "bleu": 0.0,
+      "cer": 0.8461538461538461
+    },
+    {
+      "source": "خود کو پہچان کے تو ذرا یہ",
+      "reference": "khod ko ke dikhe to zra ih dria",
+      "prediction": "'",
+      "bleu": 0.0,
+      "cer": 1.0
+    }
+  ],
+  "model_info": {
+    "total_params": 9396688,
+    "trainable_params": 9396688
+  }
+}
