@@ -18,10 +18,10 @@ except Exception:
 # ------------------------------
 # Configuration
 # ------------------------------
-MODEL_DIR = "models"  # place your model/tokenizer files here
-URDU_TOKENIZER_FILE = os.path.join(MODEL_DIR, "experiment_1_urdu_tokenizer.pkl")
-ROMAN_TOKENIZER_FILE = os.path.join(MODEL_DIR, "experiment_1_roman_tokenizer.pkl")
-MODEL_FILE = os.path.join(MODEL_DIR, "best_model.pth")  # optional
+
+URDU_TOKENIZER_FILE =( "experiment_1_urdu_tokenizer.pkl")
+ROMAN_TOKENIZER_FILE = ( "experiment_1_roman_tokenizer.pkl")
+MODEL_FILE =( "best_model.pth")  # optional
 
 # ------------------------------
 # Rule-based transliteration map
