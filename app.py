@@ -22,36 +22,7 @@ FILE_CANDIDATES = [
   
 ]
 
-# ------------------------------
-# Detect files in root or models/
-# ------------------------------
-ROOT = os.getcwd()
-MODEL_DIRS_TO_CHECK = [ROOT, os.path.join(ROOT, "models")]
 
-found_files = {}
-for d in MODEL_DIRS_TO_CHECK:
-    if not os.path.exists(d):
-        continue
-    for fname in os.listdir(d):
-        if fname in FILE_CANDIDATES:
-            found_files[fname] = os.path.join(d, fname)
-
-st.set_page_config(page_title="Urdu → Roman Urdu", layout="wide")
-st.title("Urdu → Roman Urdu Translator")
-
-st.markdown(
-    "Place your single files (e.g. `best_model.pth`, `experiment_1_urdu_tokenizer.pkl`, "
-    "`experiment_1_roman_tokenizer.pkl`) in the repository root (or `models/`). "
-    "The app will auto-detect and attempt to use them. If missing, a rule-based fallback is used."
-)
-
-# Show detected files
-if found_files:
-    st.write("Detected files:")
-    for k, v in found_files.items():
-        st.write(f"- `{k}`  →  `{v}`")
-else:
-    st.info("No model/tokenizer files detected. The app will use rule-based transliteration.")
 
 # ------------------------------
 # Rule-based transliteration map
