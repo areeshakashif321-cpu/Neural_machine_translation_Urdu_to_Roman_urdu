@@ -17,13 +17,9 @@ except Exception:
 FILE_CANDIDATES = [
     "best_model.pth",
     "experiment_1_model.pth",
-    "experiment_1_results.json",
-    "experiment_1_roman_tokenizer.pkl",
-    "experiment_1_urdu_tokenizer.pkl",
+
     "experiment_2_model.pth",
-    "experiment_2_results.json",
-    "experiment_2_roman_tokenizer.pkl",
-    "experiment_2_urdu_tokenizer.pkl"
+  
 ]
 
 # ------------------------------
