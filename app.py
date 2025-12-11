@@ -1,14 +1,10 @@
-
----
-
-# `app.py`
-```python
+# app.py
 import os
 import re
 import pickle
 import streamlit as st
 
-# Optional: import torch only if available / needed
+# Try import torch (optional)
 try:
     import torch
     TORCH_AVAILABLE = True
@@ -16,16 +12,53 @@ except Exception:
     TORCH_AVAILABLE = False
 
 # ------------------------------
-# Configuration
+# Files expected (single-file mode)
 # ------------------------------
+FILE_CANDIDATES = [
+    "best_model.pth",
+    "experiment_1_model.pth",
+    "experiment_1_results.json",
+    "experiment_1_roman_tokenizer.pkl",
+    "experiment_1_urdu_tokenizer.pkl",
+    "experiment_2_model.pth",
+    "experiment_2_results.json",
+    "experiment_2_roman_tokenizer.pkl",
+    "experiment_2_urdu_tokenizer.pkl"
+]
 
-URDU_TOKENIZER_FILE =( "experiment_1_urdu_tokenizer.pkl")
-ROMAN_TOKENIZER_FILE = ( "experiment_1_roman_tokenizer.pkl")
-MODEL_FILE =( "best_model.pth")  # optional
+# ------------------------------
+# Detect files in root or models/
+# ------------------------------
+ROOT = os.getcwd()
+MODEL_DIRS_TO_CHECK = [ROOT, os.path.join(ROOT, "models")]
+
+found_files = {}
+for d in MODEL_DIRS_TO_CHECK:
+    if not os.path.exists(d):
+        continue
+    for fname in os.listdir(d):
+        if fname in FILE_CANDIDATES:
+            found_files[fname] = os.path.join(d, fname)
+
+st.set_page_config(page_title="Urdu → Roman Urdu", layout="wide")
+st.title("Urdu → Roman Urdu Translator")
+
+st.markdown(
+    "Place your single files (e.g. `best_model.pth`, `experiment_1_urdu_tokenizer.pkl`, "
+    "`experiment_1_roman_tokenizer.pkl`) in the repository root (or `models/`). "
+    "The app will auto-detect and attempt to use them. If missing, a rule-based fallback is used."
+)
+
+# Show detected files
+if found_files:
+    st.write("Detected files:")
+    for k, v in found_files.items():
+        st.write(f"- `{k}`  →  `{v}`")
+else:
+    st.info("No model/tokenizer files detected. The app will use rule-based transliteration.")
 
 # ------------------------------
 # Rule-based transliteration map
-# (simple, readable Roman Urdu)
 # ------------------------------
 URDU_ROMAN_MAP = {
     'ا': 'a', 'آ': 'aa', 'ب': 'b', 'پ': 'p', 'ت': 't', 'ٹ': 't', 'ث': 's',
@@ -42,116 +75,143 @@ def rule_based_roman(text: str) -> str:
     for ch in text:
         out_chars.append(URDU_ROMAN_MAP.get(ch, ch))
     out = ''.join(out_chars)
-    # Basic cleanup & common replacements for readability
     out = re.sub(r'\s+', ' ', out).strip()
-    # normalize some vowel repeats
-    out = out.replace('aa', 'a')  # makes ā -> a (simple heuristic)
-    out = out.replace(" '", "'")
+    # Heuristics to make output more readable
+    out = out.replace(' aa', ' a').replace('aa', 'a')
+    out = out.replace('  ', ' ')
     return out
 
 # ------------------------------
-# Attempt to load tokenizers & model (if present)
+# Try load tokenizers (pickles) from found_files
 # ------------------------------
-loaded_tokenizers = False
 urdu_tokenizer = None
 roman_tokenizer = None
+loaded_tokenizers = False
+
+def try_load_tokenizer(path):
+    try:
+        with open(path, "rb") as f:
+            return pickle.load(f)
+    except Exception as e:
+        st.warning(f"Failed to load tokenizer `{path}`: {e}")
+        return None
+
+# prefer explicit files if present, else try any *_urdu_tokenizer.pkl pattern in root
+for fname in ["experiment_1_urdu_tokenizer.pkl", "experiment_2_urdu_tokenizer.pkl"]:
+    if fname in found_files:
+        urdu_tokenizer = try_load_tokenizer(found_files[fname])
+        break
+
+for fname in ["experiment_1_roman_tokenizer.pkl", "experiment_2_roman_tokenizer.pkl"]:
+    if fname in found_files:
+        roman_tokenizer = try_load_tokenizer(found_files[fname])
+        break
+
+# fallback: load any .pkl in root that might be tokenizer
+if not (urdu_tokenizer and roman_tokenizer):
+    for d in MODEL_DIRS_TO_CHECK:
+        try:
+            for fname in os.listdir(d):
+                if fname.endswith("_urdu_tokenizer.pkl") and not urdu_tokenizer:
+                    urdu_tokenizer = try_load_tokenizer(os.path.join(d, fname))
+                if fname.endswith("_roman_tokenizer.pkl") and not roman_tokenizer:
+                    roman_tokenizer = try_load_tokenizer(os.path.join(d, fname))
+        except FileNotFoundError:
+            pass
+
+loaded_tokenizers = (urdu_tokenizer is not None and roman_tokenizer is not None)
+
+# ------------------------------
+# Try load model (any .pth found)
+# ------------------------------
 model = None
+model_loaded = False
+model_path = None
 
-def try_load_pickles():
-    global urdu_tokenizer, roman_tokenizer, loaded_tokenizers
+# prefer best_model.pth or experiment_1_model.pth if present
+for candidate in ["best_model.pth", "experiment_1_model.pth", "experiment_2_model.pth"]:
+    if candidate in found_files:
+        model_path = found_files[candidate]
+        break
+
+# fallback: any .pth in directories
+if model_path is None:
+    for d in MODEL_DIRS_TO_CHECK:
+        try:
+            for fname in os.listdir(d):
+                if fname.endswith(".pth"):
+                    model_path = os.path.join(d, fname)
+                    break
+        except FileNotFoundError:
+            pass
+        if model_path:
+            break
+
+if model_path and TORCH_AVAILABLE:
     try:
-        if os.path.exists(URDU_TOKENIZER_FILE):
-            with open(URDU_TOKENIZER_FILE, "rb") as f:
-                urdu_tokenizer = pickle.load(f)
-        if os.path.exists(ROMAN_TOKENIZER_FILE):
-            with open(ROMAN_TOKENIZER_FILE, "rb") as f:
-                roman_tokenizer = pickle.load(f)
-        loaded_tokenizers = (urdu_tokenizer is not None and roman_tokenizer is not None)
+        model = torch.load(model_path, map_location="cpu")
+        model.eval()
+        model_loaded = True
+        st.success(f"Model loaded from `{model_path}`")
     except Exception as e:
-        loaded_tokenizers = False
-        st.warning(f"Could not load tokenizer pickles: {e}")
+        st.warning(f"Could not load model `{model_path}`: {e}")
+        model_loaded = False
+else:
+    if model_path:
+        st.warning(f"Found model file `{model_path}` but PyTorch not available; install torch to use it.")
+    else:
+        st.info("No model (.pth) file detected.")
 
-def try_load_model():
-    global model
-    if not TORCH_AVAILABLE:
-        return False
-    try:
-        if os.path.exists(MODEL_FILE):
-            model = torch.load(MODEL_FILE, map_location="cpu")
-            # If you have a custom model class, you must load state_dict into it here.
-            return True
-    except Exception as e:
-        st.warning(f"Model load failed: {e}")
-    return False
+st.write("---")
+st.markdown("### Conversion")
 
-try_load_pickles()
-model_loaded = try_load_model()
-
-# ------------------------------
-# Inference wrapper (placeholder)
-# ------------------------------
-def neural_infer(text: str) -> str:
-    """
-    Placeholder for neural model inference. The concrete implementation depends on:
-    - your model architecture/class
-    - tokenizers' encode/decode interfaces
-    Replace this function with proper inference if you have a trained model.
-    """
-    # This is a fallback: if you have tokenizers & a model, you should implement
-    # encoding, model forward, and decoding/greedy-beam search here.
-    # For now, we simply return rule-based output with a note.
-    return rule_based_roman(text)
-
-# ------------------------------
-# Streamlit UI
-# ------------------------------
-st.set_page_config(page_title="Urdu → Roman Urdu", layout="wide")
-st.title("Urdu → Roman Urdu Translator")
-st.markdown(
-    "Type or paste Urdu text (left) and get Roman Urdu (right). "
-    "If you have model/tokenizer files in `models/`, the app will try to use them."
-)
-
-col1, col2 = st.columns([1, 1])
-
+col1, col2 = st.columns(2)
 with col1:
     urdu_input = st.text_area("Enter Urdu text", height=300, placeholder="یہاں اردو لکھیں...")
     use_neural = st.checkbox("Use neural model (if available)", value=False)
-    if st.button("Convert"):
-        if not urdu_input.strip():
-            st.warning("Please enter some Urdu text.")
-        else:
-            if use_neural and model_loaded and loaded_tokenizers:
-                roman_output = neural_infer(urdu_input)
-            else:
-                roman_output = rule_based_roman(urdu_input)
-
-            st.success("Converted ✅")
-            # show below
+    convert_btn = st.button("Convert")
 
 with col2:
-    st.text_area("Roman Urdu output", value=(roman_output if 'roman_output' in locals() else ""), height=300)
+    roman_output_box = st.empty()
 
-# ------------------------------
-# Utilities: Save output or sample
-# ------------------------------
-st.write("---")
-st.subheader("Utilities")
-if st.button("Save last output to file"):
-    if 'roman_output' not in locals():
-        st.warning("No conversion yet. Press Convert first.")
+def neural_infer_placeholder(text: str) -> str:
+    """
+    Placeholder - implement your specific model inference here if your model class is known.
+    Currently returns rule-based transliteration.
+    """
+    # If you have loaded tokenizers and a model, integrate encode->model->decode here.
+    # For example:
+    # tokens = urdu_tokenizer.encode(text)
+    # preds = model.generate(tokens)  # pseudo
+    # out = roman_tokenizer.decode(preds)
+    # return out
+    return rule_based_roman(text)
+
+if convert_btn:
+    if not urdu_input.strip():
+        st.warning("Please enter some Urdu text.")
     else:
-        out_dir = "outputs"
-        os.makedirs(out_dir, exist_ok=True)
-        idx = len(os.listdir(out_dir)) + 1
-        out_path = os.path.join(out_dir, f"roman_{idx}.txt")
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(urdu_input + "\n\n" + roman_output)
-        st.success(f"Saved to `{out_path}`")
+        if use_neural and model_loaded and loaded_tokenizers:
+            output_text = neural_infer_placeholder(urdu_input)
+        else:
+            output_text = rule_based_roman(urdu_input)
+        roman_output_box.text_area("Roman Urdu output", value=output_text, height=300)
 
-st.markdown("**Model status**")
+        # show save option
+        if st.button("Save output to outputs/roman.txt"):
+            os.makedirs("outputs", exist_ok=True)
+            out_path = os.path.join("outputs", "roman.txt")
+            with open(out_path, "w", encoding="utf-8") as f:
+                f.write("Urdu:\n")
+                f.write(urdu_input + "\n\n")
+                f.write("Roman:\n")
+                f.write(output_text + "\n")
+            st.success(f"Saved to `{out_path}`")
+
+st.write("---")
+st.subheader("Detected file status")
 st.write(f"- Tokenizers loaded: `{loaded_tokenizers}`")
-st.write(f"- PyTorch available: `{TORCH_AVAILABLE}`")
-st.write(f"- Model loaded from `{MODEL_FILE}`: `{model_loaded}`")
-
-st.info("If you want full neural inference, modify `neural_infer()` to match your model class and decoding logic (tokenizer.encode -> model -> tokenizer.decode).")
+st.write(f"- Model loaded (torch): `{model_loaded}`")
+if model_path:
+    st.write(f"- Model path: `{model_path}`")
+st.write("Place single files directly in the repository root (or `models/`) with names like `experiment_1_urdu_tokenizer.pkl`, `experiment_1_roman_tokenizer.pkl`, `best_model.pth`.")
